@@ -1,0 +1,71 @@
+@CHARSET "UTF-8";
+.right{
+	text-align:right;
+}
+.middle{
+	vertical-align:middle;
+}
+.fleft{
+	float:left;
+}
+.fright{
+	float:right;
+}
+.bold{
+	font-weight:bold;
+}
+.f19{
+	font-size:19px;
+}
+.f40{
+	font-size:40px;
+}
+.h62{
+	height:62px;
+}
+.w120{
+	width:120px;
+}
+.ml130{
+	margin-left:130px;
+}
+.ml591{
+	margin-left:591px;
+}
+.ml492{
+	margin-left:492px;
+}
+.mr130{
+	margin-right:130px;
+}
+.ml220{
+	margin-left:220px;
+}
+.mt10{
+	margin-top:10px;
+}
+.mt20{
+	margin-top:20px;
+}
+.mt25{
+	margin-top:25px;
+}
+.center{
+	text-align:center;
+}
+.left{
+	text-align:left;
+}
+.blue{
+	color:blue;
+}
+.red{
+	color:red;
+}
+.green{
+	color:#4DC94D;
+}
+
+.h30 {
+    height: 30px;
+}

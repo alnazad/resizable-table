@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>   
+
+    <meta
+      http-equiv="Content-Script-Type"
+      content="text/javascript"
+      charset="UTF-8"
+    />
+    <meta http-equiv="Content-Style-Type" content="text/css" charset="UTF-8" />
+    <style>
+          /* Apply a background color to all old rows */
+        table .even_color:nth-child(odd) {
+
+          	background-color: #ece9e9;
+        }       
+
+        .kensaku div img{
+
+          	margin-left: 4px;
+        }
+
+        .fleft img{
+
+          	margin-left: 4px;
+        } 
+
+		/* loader custom css */
+		.overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+			backdrop-filter: blur(5px); /* Blurring effect */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 1000; /* Ensure it's above other content */
+		}
+
+		.spinner {
+			border: 8px solid rgba(0, 0, 0, 0.1); /* Light grey background */
+			border-radius: 50%;
+			border-top: 8px solid #ffffff; /* White spinner */
+			width: 60px;
+			height: 60px;
+			animation: spin 1s linear infinite;
+		}
+
+		/* Safari */
+		@-webkit-keyframes spin {
+
+			0% { -webkit-transform: rotate(0deg); }
+			100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+		/* pagination custom css */
+        .pagination {
+
+			display: flex;
+			justify-content: center;
+			margin-top: 20px;
+		}
+
+		.pagination button {
+			margin: 0 5px;
+			padding: 5px 10px;
+			border: none;
+			background-color: #f1f1f1;
+			cursor: pointer;
+		}
+
+		.pagination button.active {
+			background-color: #007bff;
+			color: white;
+		}
+
+		.pagination button:disabled {
+			background-color: #e0e0e0;
+			cursor: not-allowed;
+		}    
+ 
+    
+    </style>
+    <link
+      href="/assets/Hekisou/css/common.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/assets/Hekisou/css/layout.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <!-- <script type="text/javascript" src="/assets/Hekisou/js/jquery.min.js"></script> -->
+
+    <script
+      type="text/javascript"
+      src="/assets/Hekisou/admin/common/dhtmlx/dhtmlxSuite/codebase/dhtmlx.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/Hekisou/admin/common/dhtmlx/dhtmlxSuite/codebase/dhtmlx_deprecated.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="/assets/Hekisou/css/dhtmlx.css"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="/assets/Hekisou/css/dhtmlx_custom.css"
+      type="text/css"
+    />
+
+    <script
+      type="text/javascript"
+      src="/assets/Hekisou/js/jquery.laquu.custom.js"
+    ></script>
+   
+
+  
+    <script type="text/javascript" src="/assets/Hekisou/admin/common/js/common.js"></script>
+
+
+    <title>一般社団法人 日本壁装協会 壁紙品質情報検索システム</title>
+</head>
+
+	<body id="winVP">
+	<div id="exec_layer"><div class="throbber"><img src="/assets/Hekisou/admin/common/image/throbber.gif"></div></div>
+
+		<a name="top"></a>
+<div id="top" class="clearfix">
+    <div id="logo" class="fleft">
+    </div>
+    <div class="border fleft ml492"></div>
+    <a href="/" title="ホーム" target="_brank">
+    <div id="home" class="fleft">
+        <img src="/assets/Hekisou/images/icon_home.gif" alt="ホーム"><br>
+        ホーム
+    </div>
+    </a>
+    <div class="border fleft"></div>
+    <a href="Hekisou/admin">
+    <div id="login" class="fleft">
+        <img src="/assets/Hekisou/images/img_login.gif" alt="ログイン"><br>
+        ログイン
+    </div>
+    </a>
+    <div class="border fleft"></div>
+    <a href="/assets/Hekisou/pdf/manual_pc.pdf" title="マニュアル" target="_brank">
+        <div id="help" class="fleft">
+        <img src="/assets/Hekisou/images/img_help.gif" alt="HELP"><br>
+        HELP
+    </div>
+    </a>
+    <div class="border fleft"></div>
+</div>
+<div id="main_menu_back" class="clearfix">
+    <div id="main_menu">
+        <ul>
+            <a href="Hekisou/Merchandise"><li >商品番号検索</li></a>
+            <a href="Hekisou/Authorizationnumber"><li  >認定番号逆引き検索</li></a>
+            <a href="Hekisou/Multimerchandise"><li style="background-color:#2560c7;">複数同時検索</li></a>
+            <a href="Hekisou"><li class="end" >お知らせ</li></a>
+        </ul>
+    </div>
+</div>	
+	<div id="bubble_tooltip">
+	<div class="bubble_top"><span></span></div>
+	<div class="bubble_middle"><span id="bubble_tooltip_content"></span></div>
+	<div class="bubble_bottom"></div>
+	</div>
+
+<div id="body" class="clearfix">
+    <!-- ↑　共通項目(on offだけ別) -->
+    <div id="container">
+    <div id="menuObj"></div>
+    <div id="body" class="clearfix">
+
+<!-- ↑　共通項目(on offだけ別) -->
+	<div class="h30"></div>
+	<form id="form" method="POST" name="form">
+		<div id="search_zone">
+				<div id="condition_search">
+						検索条件 <span style="color: red; font-size: 12px;">※完全一致での検索となります</span>
+				</div>
+				<div id="input_search">
+						<table id="multi">
+								<tr>
+										<td>
+						商品番号(1)：
+										</td>
+										<td>
+						<input type="text" name="search[master][merchandise_id][]" id="merchandise-num-1" [(ngModel)]="merchandise_id_1" class="input search_merchandise_id" (keyup.enter)="doSearch()">
+										</td>
+					<td rowspan="5" class="kensaku">
+						<div>
+							<img src="/assets/Hekisou/images/btn_search.gif"  (click)="doSearch()"  width="150" height="48" onmouseover="this.src='/assets/Hekisou/images/btn_search_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_search.gif'">
+							<img src="/assets/Hekisou/images/btn_searchclear.gif" onClick="document.form.reset()" width="140" height="29" onmouseover="this.src='/assets/Hekisou/images/btn_searchclear_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_searchclear.gif'">
+						</div>
+					</td>
+								</tr>
+								<tr>
+					<td>
+						商品番号(2)：
+					</td>
+					<td>
+						<input type="text" name="search[master][merchandise_id][]" id="merchandise-num-2" [(ngModel)]="merchandise_id_2" class="input search_merchandise_id" (keyup.enter)="doSearch()">
+					</td>
+								</tr>
+								<tr>
+					<td>
+						商品番号(3)：
+					</td>
+					<td>
+						<input type="text" name="search[master][merchandise_id][]" id="merchandise-num-3" [(ngModel)]="merchandise_id_3"  class="input search_merchandise_id" (keyup.enter)="doSearch()">
+					</td>
+								</tr>
+								<tr>
+										<td>
+						商品番号(4)：
+					</td>
+					<td>
+						<input type="text" name="search[master][merchandise_id][]" id="merchandise-num-4" [(ngModel)]="merchandise_id_4" class="input search_merchandise_id" (keyup.enter)="doSearch()">
+					</td>
+								</tr>
+								<tr>
+										<td>
+						商品番号(5)：
+					</td>
+					<td>
+						<input type="text" name="search[master][merchandise_id][]" id="merchandise-num-5" [(ngModel)]="merchandise_id_5" class="input search_merchandise_id" (keyup.enter)="doSearch()">
+					</td>
+								</tr>
+						</table>
+				</div>
+			<iframe src="../dl_frame.html" name="dl_frame" height=0 width=0></iframe>
+		</div>
+	</form>
+	<div id="result_search" class="clearfix">
+	<span class="bold f19">検索結果1</span>
+	</div>
+	<div id="button_result" class="clearfix">
+	<div class="buttons" style="text-align: left;margin-bottom:10px">
+			見本帳名に<span style="color:#ff0000">(*)</span>印がついている商品は、在庫の有無を見本帳発行会社にお問い合わせください。<br> 施工条件が"特有の施工法"の商品に関しては、「<a
+				href="../index.html"
+			>日本壁装協会</a>」にお問い合わせ下さい。<br >
+			<span style="color:#ff0000">※</span>不燃石膏ボードは厚さ12mm以上のものに限る。（建設省告示第1400号）
+		</div>
+	<div class="buttons fleft">
+		<img src="/assets/Hekisou/images/btn_save.gif"  (click)="saveSession1()" alt="保存" onmouseover="this.src='/assets/Hekisou/images/btn_save_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_save.gif'">
+		<img src="/assets/Hekisou/images/btn_display.gif"   (click)="showSession()" alt="保存データ表示" onmouseover="this.src='/assets/Hekisou/images/btn_display_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_display.gif'">
+		<img src="/assets/Hekisou/images/btn_confirmation.gif" alt="確認書" (click)="downloadpdf1()"  onmouseover="this.src='/assets/Hekisou/images/btn_confirmation_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_confirmation.gif'">
+	</div>
+	<div class="buttons fright">
+				<div id="pagenation1"></div>
+	</div>
+	</div>
+	
+	<span id="gridbox2" class="gridbox2_multi">
+		<div
+		  id="gridbox"
+		  style="
+			width: 1122.2px;
+			height: 232px;
+			cursor: default;
+			display: block;
+		  "
+		  class="gridbox gridbox_dhx_web isModern"
+		>
+		</div>
+	</span>
+
+	<div id="result_search" class="clearfix">
+	<span class="bold f19">検索結果2</span>
+	</div>
+	<div id="button_result" class="clearfix">
+	<div class="buttons fleft">
+		<img src="/assets/Hekisou/images/btn_save.gif"  (click)="saveSession2()" alt="保存" onmouseover="this.src='/assets/Hekisou/images/btn_save_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_save.gif'">
+		<img src="/assets/Hekisou/images/btn_display.gif"  alt="保存データ表示" (click)="showSession()" onmouseover="this.src='/assets/Hekisou/images/btn_display_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_display.gif'">
+		<img src="/assets/Hekisou/images/btn_confirmation.gif" (click)="downloadpdf2()" alt="確認書"  onmouseover="this.src='/assets/Hekisou/images/btn_confirmation_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_confirmation.gif'">
+	</div>
+	<div class="buttons fright">
+				<div id="pagenation2"></div>
+	</div>
+	</div>
+	<span id="gridbox2" class="gridbox2_multi">
+		<div id="gridbox_2" style="
+		width: 1122.2px;
+		height: 232px;
+		cursor: default;
+		display: block;"></div>
+	</span>
+
+	<div id="result_search" class="clearfix">
+	<span class="bold f19">検索結果3</span>
+	</div>
+	<div id="button_result" class="clearfix">
+	<div class="buttons fleft">
+		<img src="/assets/Hekisou/images/btn_save.gif" (click)="saveSession3()" alt="保存" onmouseover="this.src='/assets/Hekisou/images/btn_save_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_save.gif'">
+		<img src="/assets/Hekisou/images/btn_display.gif"  alt="保存データ表示" (click)="showSession()" onmouseover="this.src='/assets/Hekisou/images/btn_display_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_display.gif'">
+		<img src="/assets/Hekisou/images/btn_confirmation.gif"  alt="確認書" (click)="downloadpdf3()" onmouseover="this.src='/assets/Hekisou/images/btn_confirmation_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_confirmation.gif'">
+	</div>
+	<div class="buttons fright">
+				<div id="pagenation3"></div>
+	</div>
+	</div>
+	<span id="gridbox2" class="gridbox2_multi">
+		<div
+		  id="gridbox_3"
+		  style="
+			width: 1122.2px;
+			height: 232px;
+			cursor: default;
+			display: block;
+		  "
+		  class="gridbox gridbox_dhx_web isModern"
+		>
+		</div>
+	</span>
+
+	<div id="result_search" class="clearfix">
+	<span class="bold f19">検索結果4</span>
+	</div>
+	<div id="button_result" class="clearfix">
+	<div class="buttons fleft">
+		<img src="/assets/Hekisou/images/btn_save.gif"  (click)="saveSession4()" alt="保存" onmouseover="this.src='/assets/Hekisou/images/btn_save_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_save.gif'">
+		<img src="/assets/Hekisou/images/btn_display.gif"  alt="保存データ表示" (click)="showSession()" onmouseover="this.src='/assets/Hekisou/images/btn_display_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_display.gif'">
+		<img src="/assets/Hekisou/images/btn_confirmation.gif"  alt="確認書" (click)="downloadpdf4()"onmouseover="this.src='/assets/Hekisou/images/btn_confirmation_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_confirmation.gif'">
+	</div>
+	<div class="buttons fright">
+				<div id="pagenation4"></div>
+	</div>
+	</div>	
+	<span id="gridbox2" class="gridbox2_multi">
+		<div
+		  id="gridbox_4"
+		  style="
+			width: 1122.2px;
+			height: 232px;
+			cursor: default;
+			display: block;
+		  "
+		  class="gridbox gridbox_dhx_web isModern"
+		>
+		</div>
+	</span>
+	<!-- <div *ngIf="loading" class="loader"></div> -->
+	<div class="overlay" *ngIf="loading">
+		<div class="spinner"></div>
+	</div>
+	<div id="result_search" class="clearfix">
+	<span class="bold f19">検索結果5</span>
+	</div>
+	<div id="button_result" class="clearfix">
+	<div class="buttons fleft">
+		<img src="/assets/Hekisou/images/btn_save.gif"  (click)="saveSession5()" alt="保存" onmouseover="this.src='/assets/Hekisou/images/btn_save_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_save.gif'">
+		<img src="/assets/Hekisou/images/btn_display.gif"  alt="保存データ表示" (click)="showSession()" onmouseover="this.src='/assets/Hekisou/images/btn_display_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_display.gif'">
+		<img src="/assets/Hekisou/images/btn_confirmation.gif" alt="確認書" (click)="downloadpdf5()" onmouseover="this.src='/assets/Hekisou/images/btn_confirmation_on.gif'" onmouseout="this.src='/assets/Hekisou/images/btn_confirmation.gif'">
+	</div>
+	<div class="buttons fright">
+				<div id="pagenation5"></div>
+	</div>
+	</div>
+	<span id="gridbox2" class="gridbox2_multi">
+		<div
+		  id="gridbox_5"
+		  style="
+			width: 1122.2px;
+			height: 232px;
+			cursor: default;
+			display: block;
+		  "
+		  class="gridbox gridbox_dhx_web isModern"
+		>
+		</div>
+	</span>
+	<div id="exec_layer"><div class="throbber"><img src="/assets/Hekisou/admin/common/image/throbber.gif"></div></div>
+</div>
+
+
+
+        <div id="error_message" style="display:none;">
+            <div id="PlottFrameworkDebug"></div>
+            <div id="PlottFrameworkMessage">
+                    <div id='PlottFrameworkBox'>
+                            <div id="PlottFrameworkMessageContents" style='float:left;width:100%;height:130px;overflow:auto;'>
+                                                                </div>
+                            <div style='float:left;width:100%;height:30px;text-align:center;'>
+                                    <input type='button' value='閉じる' onclick='closeMessage()'>
+                            </div>
+                    </div>
+            </div>
+    </div>
+        </div>
+    	     <table class="fright pagetop" cellspacing="0">
+				<tr>
+					<td width="35%">
+					<a href="Hekisou/Multimerchandise#top" class="pagetop-link" style="display: block;">
+						<img src="/assets/Hekisou/images/ico_pagetop.gif">
+					</a>
+					</td>
+					<td width="65%">
+					<a href="Hekisou/Multimerchandise#top" class="pagetop-link" style="display: block;">
+						&nbsp;Page Top
+					</a>
+					</td>
+				</tr>
+			</table>
+	    </div>
+	<div id="foot">
+	    <div id="copyright">
+	        <div class="copy1"><img src="/assets/Hekisou/images/footer_logo.gif"></div>
+	        <div class="copy2">Copyrights Japan Wallcoverings Association.All Rights Reserved.</div>
+	    </div>
+	</div>
+	</body>
+</html>
